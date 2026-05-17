@@ -5,16 +5,25 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-
 import LoginScreen from '../screens/LoginScreen';
+import HomeScreen from '../screens/staff/HomeScreen';
+import DashboardScreen from '../screens/admin/DashboardScreen';
+import StaffScreen from '../screens/admin/StaffScreen';
+import AdminLeaveScreen from '../screens/admin/LeaveScreen';
+import PayrollScreen from '../screens/admin/PayrollScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-function TabIcon({ name, focused, color }: { name: string; focused: boolean; color: string }) {
+function TabIcon({ name, color }: { name: string; color: string }) {
+  return <Text style={{ fontSize: 18, color }}>{name}</Text>;
+}
+
+function PlaceholderScreen() {
+  const { theme } = useTheme();
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: 18, color }}>{name}</Text>
+    <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{ color: theme.text3, fontSize: 14 }}>Coming soon</Text>
     </View>
   );
 }
@@ -38,23 +47,23 @@ function StaffTabs() {
       }}>
       <Tab.Screen
         name="Home"
-        component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="⌂" focused={false} color={color} /> }}
+        component={HomeScreen}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="⌂" color={color} /> }}
       />
       <Tab.Screen
         name="History"
         component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="◷" focused={false} color={color} /> }}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="◷" color={color} /> }}
       />
       <Tab.Screen
         name="Pay"
         component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="◈" focused={false} color={color} /> }}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="◈" color={color} /> }}
       />
       <Tab.Screen
         name="Leave"
         component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊞" focused={false} color={color} /> }}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊞" color={color} /> }}
       />
     </Tab.Navigator>
   );
@@ -79,34 +88,25 @@ function AdminTabs() {
       }}>
       <Tab.Screen
         name="Today"
-        component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊟" focused={false} color={color} /> }}
+        component={DashboardScreen}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊟" color={color} /> }}
       />
       <Tab.Screen
         name="Staff"
-        component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊕" focused={false} color={color} /> }}
+        component={StaffScreen}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊕" color={color} /> }}
       />
       <Tab.Screen
         name="Leave"
-        component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊞" focused={false} color={color} /> }}
+        component={AdminLeaveScreen}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="⊞" color={color} /> }}
       />
       <Tab.Screen
         name="Payroll"
-        component={PlaceholderScreen}
-        options={{ tabBarIcon: ({ color }) => <TabIcon name="◈" focused={false} color={color} /> }}
+        component={PayrollScreen}
+        options={{ tabBarIcon: ({ color }) => <TabIcon name="◈" color={color} /> }}
       />
     </Tab.Navigator>
-  );
-}
-
-function PlaceholderScreen() {
-  const { theme } = useTheme();
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ color: theme.text3, fontSize: 14 }}>Coming soon</Text>
-    </View>
   );
 }
 
