@@ -11,7 +11,7 @@ import NetworkInfo from 'react-native-network-info';
 
 export default function HomeScreen() {
   const { theme, isDark, toggleTheme } = useTheme();
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const [activeLog, setActiveLog] = useState<any>(null);
   const [elapsed, setElapsed] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,8 @@ export default function HomeScreen() {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const ALLOWED_SSID = 'Sydney Young';
+  const ALLOWED_SSID = 'POA HTSPOT';
+  const ALLOWED_BSSID = '';
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -58,8 +59,15 @@ export default function HomeScreen() {
     setCheckingWifi(true);
     try {
       const currentSSID = await NetworkInfo.getSSID();
+      const currentBSSID = await NetworkInfo.getBSSID();
       setSsid(currentSSID);
-      setIsOnCampus(currentSSID === ALLOWED_SSID);
+      const ssidMatch = ALLOWED_SSID && currentSSID === ALLOWED_SSID;
+      const bssidMatch = ALLOWED_BSSID && currentBSSID === ALLOWED_BSSID;
+      if (ALLOWED_BSSID) {
+        setIsOnCampus(ssidMatch && bssidMatch);
+      } else {
+        setIsOnCampus(!!ssidMatch);
+      }
     } catch {
       setIsOnCampus(false);
     }
@@ -148,13 +156,8 @@ export default function HomeScreen() {
     ? (profile?.overtime_hourly_rate || 0)
     : (profile?.base_hourly_rate || 0));
 
-  const ringColor = activeLog
-    ? isOvertime ? theme.amber : theme.green
-    : theme.border2;
-  const ringBg = activeLog
-    ? isOvertime ? theme.amberBg : theme.greenBg
-    : theme.bg3;
-
+  const ringColor = activeLog ? isOvertime ? theme.amber : theme.green : theme.border2;
+  const ringBg = activeLog ? isOvertime ? theme.amberBg : theme.greenBg : theme.bg3;
   const timeStr = activeLog
     ? `${String(Math.floor(elapsed)).padStart(2, '0')}:${String(Math.floor((elapsed % 1) * 60)).padStart(2, '0')}`
     : '--:--';
@@ -182,9 +185,14 @@ export default function HomeScreen() {
               {new Date().toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long' })}
             </Text>
           </View>
-          <TouchableOpacity style={s.themeBtn} onPress={toggleTheme}>
-            <Text style={s.themeBtnText}>{isDark ? '☀' : '☾'}</Text>
-          </TouchableOpacity>
+          <View style={s.headerRight}>
+            <TouchableOpacity style={s.themeBtn} onPress={toggleTheme}>
+              <Text style={s.themeBtnText}>{isDark ? '☀' : '☾'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.signOutBtn} onPress={signOut}>
+              <Text style={s.signOutText}>Sign out</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
 
         {/* WiFi Status */}
@@ -321,17 +329,24 @@ const styles = (t: any) => StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingTop: 16, marginBottom: 20 },
   greeting: { fontSize: 26, fontWeight: '700', color: t.text, letterSpacing: -0.5 },
   date: { fontSize: 13, color: t.text3, marginTop: 3 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   themeBtn: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: t.bg3, borderWidth: 0.5,
     borderColor: t.border2, alignItems: 'center', justifyContent: 'center',
   },
   themeBtnText: { fontSize: 16 },
-  wifiRow: { marginBottom: 24 },
+  signOutBtn: {
+    paddingHorizontal: 14, paddingVertical: 8,
+    borderRadius: 8, borderWidth: 0.5,
+    borderColor: t.redBorder, backgroundColor: t.redBg,
+  },
+  signOutText: { fontSize: 12, color: t.redText, fontWeight: '500' },
+  wifiRow: { alignItems: 'center', marginBottom: 16 },
   wifiPill: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingHorizontal: 14, paddingVertical: 9,
-    borderRadius: 100, borderWidth: 0.5, alignSelf: 'flex-start',
+    borderRadius: 100, borderWidth: 0.5,
   },
   wifiOn: { backgroundColor: t.greenBg, borderColor: t.greenBorder },
   wifiOff: { backgroundColor: t.redBg, borderColor: t.redBorder },
@@ -340,8 +355,7 @@ const styles = (t: any) => StyleSheet.create({
   ringWrap: { alignItems: 'center', marginBottom: 28 },
   ring: {
     width: 180, height: 180, borderRadius: 90,
-    borderWidth: 2.5, alignItems: 'center',
-    justifyContent: 'center',
+    borderWidth: 2.5, alignItems: 'center', justifyContent: 'center',
   },
   ringTime: { fontSize: 34, fontWeight: '600', letterSpacing: 1 },
   ringLabel: { fontSize: 12, marginTop: 6, fontWeight: '500', letterSpacing: 0.5 },

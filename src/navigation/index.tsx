@@ -7,6 +7,9 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/staff/HomeScreen';
+import HistoryScreen from '../screens/staff/HistoryScreen';
+import PayScreen from '../screens/staff/PayScreen';
+import LeaveScreen from '../screens/staff/LeaveScreen';
 import DashboardScreen from '../screens/admin/DashboardScreen';
 import StaffScreen from '../screens/admin/StaffScreen';
 import AdminLeaveScreen from '../screens/admin/LeaveScreen';
@@ -17,15 +20,6 @@ const Stack = createNativeStackNavigator();
 
 function TabIcon({ name, color }: { name: string; color: string }) {
   return <Text style={{ fontSize: 18, color }}>{name}</Text>;
-}
-
-function PlaceholderScreen() {
-  const { theme } = useTheme();
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ color: theme.text3, fontSize: 14 }}>Coming soon</Text>
-    </View>
-  );
 }
 
 function StaffTabs() {
@@ -52,17 +46,17 @@ function StaffTabs() {
       />
       <Tab.Screen
         name="History"
-        component={PlaceholderScreen}
+        component={HistoryScreen}
         options={{ tabBarIcon: ({ color }) => <TabIcon name="◷" color={color} /> }}
       />
       <Tab.Screen
         name="Pay"
-        component={PlaceholderScreen}
+        component={PayScreen}
         options={{ tabBarIcon: ({ color }) => <TabIcon name="◈" color={color} /> }}
       />
       <Tab.Screen
         name="Leave"
-        component={PlaceholderScreen}
+        component={LeaveScreen}
         options={{ tabBarIcon: ({ color }) => <TabIcon name="⊞" color={color} /> }}
       />
     </Tab.Navigator>
