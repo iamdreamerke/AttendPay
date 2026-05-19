@@ -22,8 +22,8 @@ export default function HomeScreen() {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const ALLOWED_SSID = 'POA HTSPOT';
-  const ALLOWED_BSSID = '';
+  const ALLOWED_SSID = 'POA HOTSPOT';
+  const ALLOWED_BSSID = 'e8:68:19:03:8d:b';
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
