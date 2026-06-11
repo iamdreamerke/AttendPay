@@ -21,11 +21,29 @@ export default function AdminLeaveScreen() {
   }, []);
 
   const fetchRequests = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('absence_requests')
-      .select('*, profiles(full_name)')
+      .select('*')
       .order('created_at', { ascending: false });
-    setRequests(data ?? []);
+
+    if (error) {
+      console.log('Error:', error.message);
+      setLoading(false);
+      return;
+    }
+
+    const enriched = await Promise.all(
+      (data ?? []).map(async (req) => {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', req.employee_id)
+          .single();
+        return { ...req, profiles: prof };
+      })
+    );
+
+    setRequests(enriched);
     setLoading(false);
   };
 

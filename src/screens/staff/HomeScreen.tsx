@@ -1,3 +1,4 @@
+import { PermissionsAndroid, Platform } from 'react-native';
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
@@ -7,8 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { formatKES, formatHours } from '../../lib/payroll';
-import NetworkInfo from 'react-native-network-info';
-
+import NetInfo from '@react-native-community/netinfo';
 export default function HomeScreen() {
   const { theme, isDark, toggleTheme } = useTheme();
   const { profile, signOut } = useAuth();
@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const ALLOWED_SSID = 'POA HOTSPOT';
-  const ALLOWED_BSSID = 'e8:68:19:03:8d:b';
+  const ALLOWED_BSSID = '';
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -55,24 +55,47 @@ export default function HomeScreen() {
     ).start();
   };
 
-  const checkWifi = async () => {
-    setCheckingWifi(true);
-    try {
-      const currentSSID = await NetworkInfo.getSSID();
-      const currentBSSID = await NetworkInfo.getBSSID();
-      setSsid(currentSSID);
-      const ssidMatch = ALLOWED_SSID && currentSSID === ALLOWED_SSID;
-      const bssidMatch = ALLOWED_BSSID && currentBSSID === ALLOWED_BSSID;
-      if (ALLOWED_BSSID) {
-        setIsOnCampus(ssidMatch && bssidMatch);
-      } else {
-        setIsOnCampus(!!ssidMatch);
+  const requestLocationPermission = async () => {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Location Permission Required',
+        message: 'AttendPay needs location access to verify your campus WiFi network.',
+        buttonPositive: 'Allow',
+        buttonNegative: 'Deny',
       }
-    } catch {
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return true;
+};
+
+ const checkWifi = async () => {
+  setCheckingWifi(true);
+  try {
+    const hasPermission = await requestLocationPermission();
+    if (!hasPermission) {
+      Alert.alert('Permission Required', 'Location permission is needed to verify campus WiFi.');
       setIsOnCampus(false);
+      setCheckingWifi(false);
+      return;
     }
-    setCheckingWifi(false);
-  };
+
+    const state = await NetInfo.fetch();
+    const detectedSSID = (state.details as any)?.ssid ?? null;
+    const detectedBSSID = (state.details as any)?.bssid ?? null;
+
+
+    setSsid(detectedSSID);
+    setIsOnCampus(state.type === 'wifi' && detectedSSID === ALLOWED_SSID);
+
+  } catch (e: any) {
+    Alert.alert('WiFi Error', e.message || 'Unknown error');
+    setIsOnCampus(false);
+  }
+  setCheckingWifi(false);
+};
 
   const fetchActiveLog = async () => {
     if (!profile) return;
