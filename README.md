@@ -1,97 +1,217 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# AttendPay
 
-# Getting Started
+A React Native staff attendance and payroll app for campus environments. Staff clock in/out via WiFi verification, track hours, and view estimated pay in real time. Admins manage staff, approve leave, and generate payroll.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## Prerequisites
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+Install all of the following before proceeding:
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+| Tool           | Version | Download                             |
+| -------------- | ------- | ------------------------------------ |
+| Node.js        | 18+     | https://nodejs.org                   |
+| JDK            | 17      | https://adoptium.net                 |
+| Android Studio | Latest  | https://developer.android.com/studio |
+| Git            | Latest  | https://git-scm.com                  |
 
-```sh
-# Using npm
-npm start
+> **Important:** JDK must be version 17 specifically. Version 18+ will break the build.
 
-# OR using Yarn
-yarn start
+After installing Android Studio, open it and let it finish downloading the Android SDK.
+
+---
+
+## Phone Setup
+
+Before running the app, set up your Android phone for USB debugging:
+
+1. Go to **Settings → About Phone**
+2. Tap **Build Number** 7 times to unlock Developer Options
+3. Go to **Settings → Developer Options**
+4. Enable **USB Debugging**
+5. Connect your phone to your PC via USB
+6. When prompted on your phone, tap **Allow USB debugging**
+
+Verify your phone is detected by running:
+
+```powershell
+adb devices
+# Should show your device listed
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## Getting Started
 
-### Android
+### 1. Extract the project
 
-```sh
-# Using npm
-npm run android
+If you received a zip file, extract it. Then open PowerShell and navigate to the project folder:
 
-# OR using Yarn
-yarn android
+```powershell
+cd AttendPay
 ```
 
-### iOS
+### 2. Install dependencies
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```powershell
+npm install
 ```
 
-Then, and every time you update your native dependencies, run:
+### 3. Configure Supabase
 
-```sh
-bundle exec pod install
+Open `src/lib/supabase.ts` and verify the credentials match your Supabase project:
+
+```typescript
+const supabaseUrl = 'https://your-project.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+To get your credentials:
 
-```sh
-# Using npm
-npm run ios
+1. Go to https://supabase.com/dashboard
+2. Select your project
+3. Go to **Settings → API**
+4. Copy the **anon public** key
 
-# OR using Yarn
-yarn ios
+### 4. Configure Campus WiFi (Important)
+
+Open `src/screens/staff/HomeScreen.tsx` and find these two lines near the top of the file:
+
+```typescript
+const ALLOWED_SSID = 'Kabianga_Staff'; // Change to your campus WiFi name
+const ALLOWED_BSSID = ''; // Optional: your router's MAC address e.g. '00:1A:2B:3C:4D:5E'
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+**SSID** is your WiFi network name — change it to match your campus network exactly (case sensitive).
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+**BSSID** is your router's MAC address for extra security. Leave it empty `''` to use SSID only, or add your router's MAC to prevent spoofing.
 
-## Step 3: Modify your app
+To find your router's BSSID:
 
-Now that you have successfully run the app, let's make changes!
+- Connect to the campus WiFi
+- Run `ipconfig /all` in PowerShell and look for the **Default Gateway**
+- Or check your router's admin panel
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## Running the App
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+Open **two PowerShell windows**:
 
-## Congratulations! :tada:
+**Window 1 — Start Metro:**
 
-You've successfully run and modified your React Native App. :partying_face:
+```powershell
+cd AttendPay
+npx react-native start
+```
 
-### Now what?
+**Window 2 — Build and install:**
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+```powershell
+cd AttendPay
+npx react-native run-android
+```
 
-# Troubleshooting
+> The first build takes 30-60 minutes as it downloads Gradle, NDK, and other dependencies. Subsequent builds take 2-5 minutes.
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+---
 
-# Learn More
+## Making Changes
 
-To learn more about React Native, take a look at the following resources:
+After editing any JavaScript/TypeScript file, simply press **r** in the Metro terminal to reload the app instantly — no rebuild needed.
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Only run `npx react-native run-android` again if you:
+
+- Install a new npm package
+- Change native Android files
+- Change `android/` configuration
+
+---
+
+## Building a Release APK
+
+To build a standalone APK for distribution (no PC or Metro needed):
+
+```powershell
+cd android
+./gradlew assembleRelease
+```
+
+APK will be at:
+
+```
+android\app\build\outputs\apk\release\app-release.apk
+```
+
+Share via WhatsApp, Google Drive, or email. Recipients just need to enable **Install from unknown sources** on their phone.
+
+---
+
+## Troubleshooting
+
+**Build fails with Java version error**
+Make sure you have JDK 17 installed and it's the active version:
+
+```powershell
+java -version
+# Should show: openjdk version "17.x.x"
+```
+
+**`adb devices` shows nothing**
+
+- Try a different USB cable (some are charge-only)
+- Replug the USB cable
+- Check your phone screen for the USB debugging permission popup
+
+**App shows "Not on campus network" even on campus WiFi**
+
+- Check the SSID in `HomeScreen.tsx` matches your WiFi name exactly (case sensitive)
+- Make sure location permission is granted to the app on your phone
+
+**Metro port already in use**
+
+```powershell
+npx kill-port 8081
+npx react-native start
+```
+
+**Gradle build fails on first run**
+Make sure you have a stable internet connection — first build downloads ~1GB of dependencies.
+
+---
+
+## Project Structure
+
+```
+AttendPay/
+├── src/
+│   ├── context/
+│   │   ├── AuthContext.tsx      # Login, session, role detection
+│   │   └── ThemeContext.tsx     # Light/dark mode
+│   ├── lib/
+│   │   ├── supabase.ts          # Supabase client config
+│   │   └── payroll.ts           # Pay calculation helpers
+│   ├── navigation/
+│   │   └── index.tsx            # App navigation structure
+│   └── screens/
+│       ├── LoginScreen.tsx
+│       ├── staff/
+│       │   └── HomeScreen.tsx   # Clock in/out, WiFi gate, live pay
+│       └── admin/
+│           ├── DashboardScreen.tsx
+│           ├── StaffScreen.tsx
+│           ├── LeaveScreen.tsx
+│           └── PayrollScreen.tsx
+├── android/                     # Android native code
+└── index.js                     # App entry point
+```
+
+---
+
+## Tech Stack
+
+- **React Native 0.85**
+- **Supabase** — database, auth, real-time
+- **React Navigation** — tab and stack navigation
+- **react-native-network-info** — WiFi SSID/BSSID detection
+- **AsyncStorage** — session persistence
